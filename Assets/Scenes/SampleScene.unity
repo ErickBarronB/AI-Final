@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.3069224, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -157,7 +157,7 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  showGridDebug: 1
+  showGridDebug: 0
 --- !u!4 &294996982
 Transform:
   m_ObjectHideFlags: 0
@@ -1042,7 +1042,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBarOffset: {x: 0, y: 2, z: 0}
-  squadCounterOffset: {x: 0, y: 2.5, z: 0}
 --- !u!4 &1077676057
 Transform:
   m_ObjectHideFlags: 0
