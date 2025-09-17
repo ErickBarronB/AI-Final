@@ -11,6 +11,8 @@ public class SteeringBehaviors : MonoBehaviour
     [Header("Obstacle Avoidance")]
     [SerializeField] private float avoidanceRadius = 2f;
     [SerializeField] private LayerMask obstacleLayerMask = 1;
+    [SerializeField] private float combatAvoidanceRadius = 3f; // Radio más grande durante combate
+    [SerializeField] private float combatAvoidanceWeight = 3f; // Peso más alto durante combate
     
     [Header("Flocking")]
     [SerializeField] private float flockRadius = 5f;
@@ -54,7 +56,9 @@ public class SteeringBehaviors : MonoBehaviour
             steering += Seek(targetPosition) * 1f;
         }
         
-        steering += ObstacleAvoidance() * 2f;
+        // Aplicar obstacle avoidance con peso dinámico basado en el contexto
+        float avoidanceWeight = IsInCloseCombat() ? combatAvoidanceWeight : 2f;
+        steering += ObstacleAvoidance() * avoidanceWeight;
         steering += SquadFlocking() * 0.8f;
         
         ApplySteering(steering);
@@ -66,7 +70,10 @@ public class SteeringBehaviors : MonoBehaviour
         
         Vector3 steering = Vector3.zero;
         steering += Seek(dangerPosition) * -1.5f;
-        steering += ObstacleAvoidance() * 2f;
+        
+        // Usar obstacle avoidance más agresivo durante la huida
+        float avoidanceWeight = IsInCloseCombat() ? combatAvoidanceWeight * 1.5f : 2f;
+        steering += ObstacleAvoidance() * avoidanceWeight;
         steering += SquadFlocking() * 0.5f;
         
         ApplySteering(steering);
@@ -112,22 +119,30 @@ public class SteeringBehaviors : MonoBehaviour
     {
         Vector3 avoidance = Vector3.zero;
         
+        // Usar radio dinámico basado en el contexto
+        float currentRadius = IsInCloseCombat() ? combatAvoidanceRadius : avoidanceRadius;
+        
         Vector3[] rayDirections = {
             transform.forward,
             transform.forward + transform.right * 0.5f,
-            transform.forward - transform.right * 0.5f
+            transform.forward - transform.right * 0.5f,
+            // Agregar más rayos durante combate cercano
+            IsInCloseCombat() ? transform.forward + transform.right * 0.8f : Vector3.zero,
+            IsInCloseCombat() ? transform.forward - transform.right * 0.8f : Vector3.zero
         };
         
         foreach (Vector3 direction in rayDirections)
         {
+            if (direction == Vector3.zero) continue; // Skip empty directions
+            
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, direction, out hit, avoidanceRadius, obstacleLayerMask))
+            if (Physics.Raycast(transform.position, direction, out hit, currentRadius, obstacleLayerMask))
             {
                 Vector3 avoidDirection = Vector3.Cross(Vector3.up, direction);
                 if (Vector3.Dot(avoidDirection, transform.right) < 0)
                     avoidDirection = -avoidDirection;
                 
-                float force = (avoidanceRadius - hit.distance) / avoidanceRadius;
+                float force = (currentRadius - hit.distance) / currentRadius;
                 avoidance += avoidDirection * force * maxForce;
             }
         }
@@ -293,5 +308,76 @@ public class SteeringBehaviors : MonoBehaviour
         
         // Fallback to direct movement if pathfinding fails
         return targetPosition;
+    }
+    
+    // Método para detectar si la unidad está en combate cercano
+    bool IsInCloseCombat()
+    {
+        if (unit == null) return false;
+        
+        // Verificar si hay enemigos visibles cerca
+        var visibleEnemies = unit.GetVisibleEnemies();
+        if (visibleEnemies.Count == 0) return false;
+        
+        // Verificar si algún enemigo está cerca (distancia de combate)
+        float combatDistance = 8f; // Distancia considerada como combate cercano
+        foreach (Base_Unit enemy in visibleEnemies)
+        {
+            if (enemy != null && enemy.isAlive)
+            {
+                float distance = Vector3.Distance(transform.position, enemy.transform.position);
+                if (distance <= combatDistance)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    // Método para obtener la distancia al enemigo más cercano
+    float GetDistanceToNearestEnemy()
+    {
+        if (unit == null) return float.MaxValue;
+        
+        var visibleEnemies = unit.GetVisibleEnemies();
+        if (visibleEnemies.Count == 0) return float.MaxValue;
+        
+        float nearestDistance = float.MaxValue;
+        foreach (Base_Unit enemy in visibleEnemies)
+        {
+            if (enemy != null && enemy.isAlive)
+            {
+                float distance = Vector3.Distance(transform.position, enemy.transform.position);
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                }
+            }
+        }
+        
+        return nearestDistance;
+    }
+    
+    // Métodos públicos para configuración
+    public void SetCombatAvoidanceRadius(float radius)
+    {
+        combatAvoidanceRadius = radius;
+    }
+    
+    public void SetCombatAvoidanceWeight(float weight)
+    {
+        combatAvoidanceWeight = weight;
+    }
+    
+    public bool IsCurrentlyInCloseCombat()
+    {
+        return IsInCloseCombat();
+    }
+    
+    public float GetCurrentAvoidanceRadius()
+    {
+        return IsInCloseCombat() ? combatAvoidanceRadius : avoidanceRadius;
     }
 }
