@@ -27,7 +27,7 @@ public class SquadManager : MonoBehaviour
         CreateInitialSquads();
     }
     
-    void CreateInitialSquads()
+    public void CreateInitialSquads()
     {
         // Create Red squads
         for (int i = 0; i < initialSquadsPerFaction; i++)

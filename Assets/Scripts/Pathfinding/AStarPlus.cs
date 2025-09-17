@@ -231,18 +231,18 @@ public class AStarPlus : MonoBehaviour
     
     void OnDrawGizmos()
     {
-        if (!showGridDebug) return;
-        
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireCube(transform.position, new Vector3(gridSize.x, 1, gridSize.y));
-        
-        if (grid != null)
-        {
-            foreach (GridNode node in grid)
-            {
-                Gizmos.color = node.isWalkable ? Color.white : Color.red;
-                Gizmos.DrawCube(node.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
-            }
-        }
+		if (!showGridDebug) return;
+		
+		Gizmos.color = Color.cyan;
+		Gizmos.DrawWireCube(transform.position, new Vector3(gridSize.x, 1, gridSize.y));
+		
+		if (grid != null)
+		{
+			foreach (GridNode node in grid)
+			{
+				Gizmos.color = node.isWalkable ? Color.white : Color.red;
+				Gizmos.DrawCube(node.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
+			}
+		}
     }
 }
