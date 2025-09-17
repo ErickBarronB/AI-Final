@@ -1,0 +1,34 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+Crear una escena/nivel con obstáculos de por medio, paredes y límite en sus
+bordes.
+● Crear NPCs para ambos bandos y que cada uno tenga un líder. La cantidad de
+unidades para cada bando debe ser configurable desde editor. Pueden hacer
+que un líder sea el jugador y otro una IA o ambos controlados por IA.
+● Desarrollar las FSM necesarias tanto para los líderes (al menos 5 estados
+complejos) como las otras unidades para que puedan atacar a sus adversarios
+(al menos 3 estados complejos). A su vez, tener en cuenta los siguientes puntos:
+○ Los enemigos sólo podrán atacar a otros si los tienen en su línea de
+visión, de otra forma, deberán patrullar/buscarlos.
+○ Al menos una Roulette Wheel Selection con pesos dinámicos (es decir,
+modificados según su entorno). Mínimo 3 items.
+○ Todos los NPCs deberán aplicar Flocking cada vez que se quieran mover.
+○ Todos los NPCs en escena deberán esquivar los obstáculos pequeños
+que se encuentren en su camino (utilizando obstacle avoidance).
+○ Todos los NPCs valorarán su vida antes que la de su batallón. Es decir,
+huirán en caso de tener poca HP, intentarán buscar lugares a salvo,
+intentarán bloquear/esquivar ataques, etc.
+○ Tanto los escapes como las persecuciones deberán aplicar algún Steering
+Behaviour, según corresponda, y utilizar el Pathfinding si es debido según
+el contexto.
+■ Se tendrá muy en cuenta cuando usan Pathfinding y cuando usan
+algún Steering Behavior.
+■ Para desplazarse deberán utilizar algunos de estos algoritmos:
+● A* Plus (Clean Path)
+● Theta*.
+
+THIS BUT IN ENGLISH
