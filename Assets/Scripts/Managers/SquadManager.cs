@@ -29,13 +29,11 @@ public class SquadManager : MonoBehaviour
     
     public void CreateInitialSquads()
     {
-        // Create Red squads
         for (int i = 0; i < initialSquadsPerFaction; i++)
         {
             CreateSquad(Faction.Red, redSpawnArea + Random.insideUnitSphere * spawnRadius);
         }
         
-        // Create Blue squads
         for (int i = 0; i < initialSquadsPerFaction; i++)
         {
             CreateSquad(Faction.Blue, blueSpawnArea + Random.insideUnitSphere * spawnRadius);
@@ -44,39 +42,32 @@ public class SquadManager : MonoBehaviour
     
     void CreateSquad(Faction faction, Vector3 position)
     {
-        // Get the correct prefabs for this faction
         GameObject leaderPrefab = faction == Faction.Red ? teamALeaderPrefab : teamBLeaderPrefab;
         GameObject unitPrefab = faction == Faction.Red ? teamAUnitPrefab : teamBUnitPrefab;
         
-        // Validate prefabs
         if (leaderPrefab == null || unitPrefab == null)
         {
             Debug.LogError($"Missing prefabs for {faction} faction! Please assign all prefab references in SquadManager.");
             return;
         }
         
-        // Create squad GameObject
         GameObject squadGO = new GameObject($"Squad_{faction}_{allSquads.Count}");
         Squad squad = squadGO.AddComponent<Squad>();
-        squad.maxSquadSize = unitsPerSquad; // Set the correct max size
+        squad.maxSquadSize = unitsPerSquad;
         
-        // Create leader
         GameObject leaderGO = Instantiate(leaderPrefab, position, Quaternion.identity);
         Base_Unit leader = leaderGO.GetComponent<Base_Unit>();
         leader.faction = faction;
         leader.unitType = UnitType.Leader;
         leaderGO.name = $"Leader_{faction}_{allSquads.Count}";
         
-        // Add LeaderAI component
         leaderGO.AddComponent<LeaderAI>();
         
-        // Add UI spawner for health bar and squad counter
         leaderGO.AddComponent<UISpawner>();
         
         squad.SetLeader(leader);
         
-        // Create squad members
-        for (int i = 0; i < unitsPerSquad - 1; i++) // -1 because leader counts as one
+        for (int i = 0; i < unitsPerSquad - 1; i++)
         {
             Vector3 memberPos = position + Random.insideUnitSphere * 3f;
             memberPos.y = 0f;
@@ -87,10 +78,8 @@ public class SquadManager : MonoBehaviour
             member.unitType = UnitType.Base;
             memberGO.name = $"Unit_{faction}_{allSquads.Count}_{i}";
             
-            // Add UnitAI component
             memberGO.AddComponent<UnitAI>();
             
-            // Add UI spawner for health bar
             memberGO.AddComponent<UISpawner>();
             
             squad.TryAddMember(member);
@@ -101,13 +90,11 @@ public class SquadManager : MonoBehaviour
     
     void Update()
     {
-        // Clean up destroyed squads
         allSquads.RemoveAll(squad => squad == null);
     }
     
     void OnDrawGizmos()
     {
-        // Draw spawn areas
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(redSpawnArea, spawnRadius);
         

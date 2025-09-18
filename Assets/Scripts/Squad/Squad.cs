@@ -24,7 +24,7 @@ public class Squad : MonoBehaviour
     private Base_Unit currentSquadTarget;
     private bool isInCombat = false;
     private float lastReportTime = 0f;
-    private float reportCooldown = 2f; // Prevent spam reports
+    private float reportCooldown = 2f;
     
     public Base_Unit CurrentSquadTarget => currentSquadTarget;
     public bool IsInCombat => isInCombat;
@@ -62,7 +62,6 @@ public class Squad : MonoBehaviour
             leader.SetSquad(null, SquadRole.Independent);
             leader = null;
             
-            // Promote a member to leader if possible
             if (members.Count > 0)
             {
                 Base_Unit newLeader = members[0];
@@ -140,7 +139,6 @@ public class Squad : MonoBehaviour
         int index = members.IndexOf(unit);
         if (index == -1) return unit.transform.position;
         
-        // Simple formation: circle around leader
         float angle = (index * 90f) * Mathf.Deg2Rad;
         Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * cohesionRange;
         return leader.transform.position + offset;
@@ -166,19 +164,16 @@ public class Squad : MonoBehaviour
             }
         }
         
-        // Destroy squad if empty
         if (SquadSize == 0)
         {
             Destroy(gameObject);
         }
     }
     
-    // Communication and Combat Coordination
     public void ReportEnemyContact(Base_Unit reporter, Base_Unit enemy)
     {
         if (leader == null || enemy == null) return;
         
-        // Prevent spam reports with cooldown
         if (Time.time < lastReportTime + reportCooldown) return;
         
         lastReportTime = Time.time;
@@ -186,7 +181,6 @@ public class Squad : MonoBehaviour
         var leaderStateMachine = leader.GetComponent<StateMachine>();
         if (leaderStateMachine == null) return;
         
-        // Always respond if leader is in non-combat states
         if (leaderStateMachine.IsInState<LeaderCommandState>() || 
             leaderStateMachine.IsInState<LeaderHealState>() ||
             leaderStateMachine.IsInState<LeaderRecruitState>())
@@ -194,7 +188,6 @@ public class Squad : MonoBehaviour
             SetSquadTarget(enemy);
             leaderStateMachine.ChangeState<LeaderAttackState>();
         }
-        // If leader is already attacking but target changed, update target
         else if (leaderStateMachine.IsInState<LeaderAttackState>() && 
                  (currentSquadTarget == null || currentSquadTarget != enemy))
         {
@@ -211,7 +204,6 @@ public class Squad : MonoBehaviour
         {
             Debug.Log($"[Squad] Squad target set to: {target.name}");
             
-            // Notify all squad members of the attack order
             NotifySquadAttackOrder(target);
         }
         else
@@ -222,7 +214,6 @@ public class Squad : MonoBehaviour
     
     public void NotifySquadAttackOrder(Base_Unit target)
     {
-        // Send attack order to all squad members
         foreach (Base_Unit member in members)
         {
             if (member != null && member.isAlive)
@@ -230,7 +221,6 @@ public class Squad : MonoBehaviour
                 var memberStateMachine = member.GetComponent<StateMachine>();
                 if (memberStateMachine != null)
                 {
-                    // Only give attack order if member is following or recruiting
                     if (memberStateMachine.IsInState<UnitFollowState>() || 
                         memberStateMachine.IsInState<UnitRecruitState>())
                     {

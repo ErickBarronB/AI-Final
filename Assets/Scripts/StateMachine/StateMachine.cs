@@ -13,7 +13,6 @@ public class StateMachine : MonoBehaviour
         if (currentState == null) return "None";
         
         string stateName = currentState.GetType().Name;
-        // Remove "State" suffix for cleaner display
         if (stateName.EndsWith("State"))
             stateName = stateName.Substring(0, stateName.Length - 5);
         

@@ -20,40 +20,34 @@ public class LeaderFortifyState : IState
     {
         fortifyStartTime = Time.time;
         
-        // Activate fortification for the squad
         if (leader.CurrentSquad != null)
         {
             leader.CurrentSquad.SetFortified(true);
         }
         
-        // Stop moving during fortification
         steering.Stop();
     }
     
     public void Update()
     {
-        // Check if we should retreat (only in extreme cases during fortify)
         if (ShouldEmergencyRetreat())
         {
             stateMachine.ChangeState<LeaderFleeState>();
             return;
         }
         
-        // Look for enemies to attack while fortified
         Base_Unit enemy = leader.FindClosestEnemy();
         if (enemy != null && leader.IsInAttackRange(enemy) && leader.canAttack)
         {
             leader.Attack(enemy);
         }
         
-        // Fortification takes time
         if (Time.time > fortifyStartTime + fortifyDuration)
         {
             stateMachine.ChangeState<LeaderAttackState>();
             return;
         }
         
-        // Stay still during fortification but can still attack
         steering.Stop();
     }
     
@@ -61,11 +55,9 @@ public class LeaderFortifyState : IState
     {
         if (leader.CurrentSquad == null) return true;
         
-        // Only retreat in extreme emergencies during fortification
         float avgHealth = leader.CurrentSquad.GetAverageHealthPercentage();
         int aliveCount = leader.CurrentSquad.GetAliveCount();
         
-        // Emergency retreat: squad is nearly wiped out or critically low health
         return avgHealth < 0.15f || aliveCount == 0 || (leader.healthPercentage < 0.1f && aliveCount <= 1);
     }
     

@@ -21,17 +21,15 @@ public class StateDisplay : MonoBehaviour
         unit = GetComponentInParent<Base_Unit>();
         mainCamera = Camera.main;
         
-        // Set up canvas to face camera
         if (canvas != null)
         {
             canvas.worldCamera = mainCamera;
-            canvas.sortingOrder = 101; // Above health bar
+            canvas.sortingOrder = 101;
         }
     }
     
     void Start()
     {
-        // Get the StateMachine component (it's added by AI controllers)
         if (unit != null)
             stateMachine = unit.GetComponent<StateMachine>();
         
@@ -58,7 +56,6 @@ public class StateDisplay : MonoBehaviour
         string currentState = stateMachine.GetCurrentStateName();
         stateText.text = currentState;
         
-        // Always show state display
         canvas.gameObject.SetActive(true);
     }
     
@@ -67,7 +64,7 @@ public class StateDisplay : MonoBehaviour
         if (mainCamera != null && canvas != null)
         {
             Vector3 directionToCamera = mainCamera.transform.position - transform.position;
-            directionToCamera.y = 0; // Keep state display upright
+            directionToCamera.y = 0;
             
             if (directionToCamera != Vector3.zero)
             {

@@ -22,7 +22,6 @@ public class UnitRecruitState : IState
     
     public void Update()
     {
-        // Check if recruitment is no longer needed/possible
         if (unit.SquadRole != SquadRole.Independent ||
             recruitTarget == null || !recruitTarget.isAlive ||
             recruitTarget.SquadRole != SquadRole.Independent)
@@ -31,12 +30,10 @@ public class UnitRecruitState : IState
             return;
         }
         
-        // Move towards recruit target
         float distance = Vector3.Distance(unit.transform.position, recruitTarget.transform.position);
         
-        if (distance <= 3f) // Close enough to recruit
+        if (distance <= 3f)
         {
-            // Try to join the recruit target's squad or create a new one
             if (recruitTarget.CurrentSquad != null && !recruitTarget.CurrentSquad.IsFull)
             {
                 if (recruitTarget.CurrentSquad.TryAddMember(unit))
@@ -47,7 +44,6 @@ public class UnitRecruitState : IState
             }
             else if (unit.unitType == UnitType.Leader)
             {
-                // Create a new squad with this unit as leader
                 GameObject squadGO = new GameObject("Squad");
                 Squad newSquad = squadGO.AddComponent<Squad>();
                 newSquad.SetLeader(unit);

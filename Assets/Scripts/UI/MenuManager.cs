@@ -54,22 +54,18 @@ public class MenuManager : MonoBehaviour
         SetupButtons();
         ShowMainMenu();
         
-        // Pausar el juego al inicio hasta que se presione Play
         PauseGameAtStart();
     }
     
     void PauseGameAtStart()
     {
-        // Pausar el juego al inicio
         Time.timeScale = 0f;
         gameStarted = false;
         gameEnded = false;
         isPaused = false;
         
-        // Pausar el GameManager si existe
         if (GameManager.Instance != null)
         {
-            // El GameManager se pausará automáticamente
         }
         
         Debug.Log("Juego pausado al inicio - Presiona Play para comenzar");
@@ -77,7 +73,6 @@ public class MenuManager : MonoBehaviour
     
     void Update()
     {
-        // Pausar con Escape solo si el juego ha comenzado y no ha terminado
         if (Input.GetKeyDown(KeyCode.Escape) && gameStarted && !gameEnded)
         {
             if (isPaused)
@@ -93,13 +88,11 @@ public class MenuManager : MonoBehaviour
     
     void SetupButtons()
     {
-        // Main Menu Buttons
         if (playButton != null)
             playButton.onClick.AddListener(StartGame);
         if (exitButton != null)
             exitButton.onClick.AddListener(QuitGame);
         
-        // Pause Menu Buttons
         if (resumeButton != null)
             resumeButton.onClick.AddListener(ResumeGame);
         if (mainMenuButton != null)
@@ -107,7 +100,6 @@ public class MenuManager : MonoBehaviour
         if (quitButton != null)
             quitButton.onClick.AddListener(QuitGame);
         
-        // Win Screen Buttons
         if (playAgainButton != null)
             playAgainButton.onClick.AddListener(PlayAgain);
         if (mainMenuWinButton != null)
@@ -116,7 +108,6 @@ public class MenuManager : MonoBehaviour
             quitWinButton.onClick.AddListener(QuitGame);
     }
     
-    // ========== MAIN MENU FUNCTIONS ==========
     
     public void ShowMainMenu()
     {
@@ -127,7 +118,7 @@ public class MenuManager : MonoBehaviour
         isPaused = false;
         gameStarted = false;
         gameEnded = false;
-        Time.timeScale = 0f; // Mantener pausado en el menú principal
+        Time.timeScale = 0f;
         
         Debug.Log("Mostrando menú principal");
     }
@@ -146,7 +137,6 @@ public class MenuManager : MonoBehaviour
         Debug.Log("¡Juego iniciado!");
     }
     
-    // ========== PAUSE MENU FUNCTIONS ==========
     
     public void PauseGame()
     {
@@ -176,7 +166,6 @@ public class MenuManager : MonoBehaviour
         Debug.Log("Juego reanudado");
     }
     
-    // ========== WIN SCREEN FUNCTIONS ==========
     
     public void ShowRedTeamWin()
     {
@@ -204,16 +193,13 @@ public class MenuManager : MonoBehaviour
             return;
         }
         
-        // Ocultar otros paneles si está habilitado
         if (hideOtherPanelsOnWin)
         {
             HideAllPanels();
         }
         
-        // Mostrar el panel de victoria
         winPanel.SetActive(true);
         
-        // Pausar el juego si está habilitado
         if (pauseGameOnWin)
         {
             Time.timeScale = 0f;
@@ -223,7 +209,6 @@ public class MenuManager : MonoBehaviour
         isPaused = false;
     }
     
-    // Método para mostrar victoria basado en string (compatibilidad)
     public void ShowWinScreen(string winner)
     {
         switch (winner.ToLower())
@@ -249,7 +234,6 @@ public class MenuManager : MonoBehaviour
         }
     }
     
-    // Método para mostrar victoria basado en Faction
     public void ShowWinScreen(Faction winningFaction)
     {
         switch (winningFaction)
@@ -266,11 +250,9 @@ public class MenuManager : MonoBehaviour
         }
     }
     
-    // ========== GAME CONTROL FUNCTIONS ==========
     
     public void PlayAgain()
     {
-        // Reiniciar la escena actual
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         
@@ -279,19 +261,16 @@ public class MenuManager : MonoBehaviour
     
     public void RestartGame()
     {
-        // Reiniciar el juego sin recargar la escena
         Time.timeScale = 1f;
         gameStarted = false;
         gameEnded = false;
         isPaused = false;
         
-        // Reiniciar el GameManager si existe
         if (GameManager.Instance != null)
         {
             GameManager.Instance.RestartGame();
         }
         
-        // Mostrar menú principal
         ShowMainMenu();
         
         Debug.Log("Juego reiniciado");
@@ -299,7 +278,6 @@ public class MenuManager : MonoBehaviour
     
     public void ReturnToMainMenu()
     {
-        // Recargar la escena para reiniciar el juego
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         
@@ -316,7 +294,6 @@ public class MenuManager : MonoBehaviour
         #endif
     }
     
-    // ========== UTILITY FUNCTIONS ==========
     
     void HideAllPanels()
     {
@@ -334,7 +311,6 @@ public class MenuManager : MonoBehaviour
             tieWinPanel.SetActive(false);
     }
     
-    // ========== PUBLIC GETTERS ==========
     
     public bool IsGamePaused()
     {
@@ -351,7 +327,6 @@ public class MenuManager : MonoBehaviour
         return gameEnded;
     }
     
-    // ========== CONFIGURATION METHODS ==========
     
     public void SetPauseGameOnWin(bool pause)
     {
@@ -363,7 +338,6 @@ public class MenuManager : MonoBehaviour
         hideOtherPanelsOnWin = hide;
     }
     
-    // ========== TEST METHODS ==========
     
     [ContextMenu("Test Red Win")]
     public void TestRedWin()

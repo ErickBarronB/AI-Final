@@ -4,22 +4,22 @@ using System.Linq;
 
 public enum WinConditionType
 {
-    EliminateAll,           // Eliminar todas las unidades enemigas
-    EliminateHalf,          // Eliminar la mitad de las unidades enemigas
-    EliminateLeaders,       // Eliminar solo los líderes
-    Custom                  // Condiciones personalizadas
+    EliminateAll,
+    EliminateHalf,
+    EliminateLeaders,
+    Custom
 }
 
 public class GameManager : MonoBehaviour
 {
     [Header("Game Settings")]
-    [SerializeField] private float gameTimeLimit = 300f; // 5 minutos
+    [SerializeField] private float gameTimeLimit = 300f;
     [SerializeField] private bool useTimeLimit = false;
     
     [Header("Win Conditions")]
     [SerializeField] private WinConditionType winConditionType = WinConditionType.EliminateAll;
-    [SerializeField] private int redUnitsToWin = 0; // Solo usado si winConditionType = Custom
-    [SerializeField] private int blueUnitsToWin = 0; // Solo usado si winConditionType = Custom
+    [SerializeField] private int redUnitsToWin = 0;
+    [SerializeField] private int blueUnitsToWin = 0;
     
     [Header("Auto Detection")]
     [SerializeField] private bool autoDetectSpawnSettings = true;
@@ -46,13 +46,11 @@ public class GameManager : MonoBehaviour
     {
         gameStartTime = Time.time;
         
-        // Auto-detectar SquadManager si está habilitado
         if (autoDetectSpawnSettings)
         {
             AutoDetectSquadManager();
         }
         
-        // Calcular condiciones de victoria basadas en el spawn
         CalculateWinConditions();
     }
     
@@ -66,7 +64,6 @@ public class GameManager : MonoBehaviour
     
     void CheckWinConditions()
     {
-        // Obtener todas las unidades vivas
         Base_Unit[] allUnits = FindObjectsOfType<Base_Unit>();
         List<Base_Unit> redUnits = new List<Base_Unit>();
         List<Base_Unit> blueUnits = new List<Base_Unit>();
@@ -92,8 +89,7 @@ public class GameManager : MonoBehaviour
             }
         }
         
-        // Verificar condiciones de victoria según el tipo
-        Faction winnerFaction = Faction.Red; // Valor por defecto
+        Faction winnerFaction = Faction.Red;
         bool gameWon = false;
         
         switch (winConditionType)
@@ -122,7 +118,6 @@ public class GameManager : MonoBehaviour
     {
         if (useTimeLimit && Time.time - gameStartTime >= gameTimeLimit)
         {
-            // Determinar ganador por unidades restantes
             Base_Unit[] allUnits = FindObjectsOfType<Base_Unit>();
             int redCount = allUnits.Count(u => u.isAlive && u.faction == Faction.Red);
             int blueCount = allUnits.Count(u => u.isAlive && u.faction == Faction.Blue);
@@ -133,7 +128,7 @@ public class GameManager : MonoBehaviour
             else if (blueCount > redCount)
                 winnerFaction = Faction.Blue;
             else
-                winnerFaction = Faction.Red; // Empate por defecto
+                winnerFaction = Faction.Red;
             
             EndGame(winnerFaction);
         }
@@ -146,7 +141,6 @@ public class GameManager : MonoBehaviour
         gameEnded = true;
         Debug.Log($"¡Juego terminado! Ganador: {winnerFaction}");
         
-        // Mostrar pantalla de victoria específica
         if (MenuManager.Instance != null)
         {
             MenuManager.Instance.ShowWinScreen(winnerFaction);
@@ -164,7 +158,6 @@ public class GameManager : MonoBehaviour
         gameEnded = true;
         Debug.Log($"¡Juego terminado! Ganador: {winner}");
         
-        // Mostrar pantalla de victoria específica
         if (MenuManager.Instance != null)
         {
             MenuManager.Instance.ShowWinScreen(winner);
@@ -175,7 +168,6 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    // Métodos públicos para configurar el juego
     public void SetTimeLimit(float timeLimit)
     {
         gameTimeLimit = timeLimit;
@@ -210,7 +202,6 @@ public class GameManager : MonoBehaviour
         return Mathf.Max(0f, gameTimeLimit - GetGameTime());
     }
     
-    // Métodos de auto-detección
     void AutoDetectSquadManager()
     {
         if (squadManager == null)
@@ -231,11 +222,9 @@ public class GameManager : MonoBehaviour
     {
         if (squadManager == null) return;
         
-        // Calcular total de unidades por facción basado en SquadManager
         int totalRedUnits = squadManager.initialSquadsPerFaction * squadManager.unitsPerSquad;
         int totalBlueUnits = squadManager.initialSquadsPerFaction * squadManager.unitsPerSquad;
         
-        // Configurar condiciones automáticamente según el tipo
         switch (winConditionType)
         {
             case WinConditionType.EliminateHalf:
@@ -243,15 +232,14 @@ public class GameManager : MonoBehaviour
                 blueUnitsToWin = totalBlueUnits / 2;
                 break;
             case WinConditionType.EliminateLeaders:
-                redUnitsToWin = squadManager.initialSquadsPerFaction; // Solo líderes
-                blueUnitsToWin = squadManager.initialSquadsPerFaction; // Solo líderes
+                redUnitsToWin = squadManager.initialSquadsPerFaction;
+                blueUnitsToWin = squadManager.initialSquadsPerFaction;
                 break;
         }
         
         Debug.Log($"Condiciones de victoria calculadas: Red={redUnitsToWin}, Blue={blueUnitsToWin}");
     }
     
-    // Métodos de verificación de condiciones de victoria
     bool CheckEliminateAll(List<Base_Unit> redUnits, List<Base_Unit> blueUnits, out Faction winner)
     {
         winner = Faction.Red;
@@ -268,7 +256,7 @@ public class GameManager : MonoBehaviour
         }
         else if (redUnits.Count == 0 && blueUnits.Count == 0)
         {
-            winner = Faction.Red; // Empate
+            winner = Faction.Red;
             return true;
         }
         
@@ -309,7 +297,7 @@ public class GameManager : MonoBehaviour
         }
         else if (redLeaders.Count == 0 && blueLeaders.Count == 0)
         {
-            winner = Faction.Red; // Empate
+            winner = Faction.Red;
             return true;
         }
         
@@ -334,7 +322,6 @@ public class GameManager : MonoBehaviour
         return false;
     }
     
-    // Métodos públicos para configuración
     public void SetWinConditionType(WinConditionType type)
     {
         winConditionType = type;

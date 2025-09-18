@@ -8,7 +8,7 @@ public class LeaderCommandState : IState
     private StateMachine stateMachine;
     
     private float lastDecisionTime;
-    private float decisionInterval = 1f; // Check for enemies every second
+    private float decisionInterval = 1f;
     private Vector3 currentPatrolTarget;
     private float lastPatrolUpdate;
     private float patrolUpdateInterval = 5f;
@@ -29,7 +29,6 @@ public class LeaderCommandState : IState
     
     public void Update()
     {
-        // Check for recruitment opportunities (only if we have a squad and it's not full)
         if (leader.CurrentSquad != null && !leader.CurrentSquad.IsFull)
         {
             Base_Unit recruitable = leader.FindRecruitable();
@@ -40,14 +39,12 @@ public class LeaderCommandState : IState
             }
         }
         
-        // Check if leader should flee first (very low health)
         if (leader.healthPercentage <= 0.15f)
         {
             stateMachine.ChangeState<LeaderFleeState>();
             return;
         }
         
-        // Immediate enemy detection - don't wait for periodic decisions
         List<Base_Unit> immediateEnemies = leader.GetVisibleEnemies();
         if (immediateEnemies.Count > 0)
         {
@@ -55,21 +52,18 @@ public class LeaderCommandState : IState
             return;
         }
         
-        // Periodic tactical decisions for less frequent checks
         if (Time.time > lastDecisionTime + decisionInterval)
         {
             MakeTacticalDecision();
             lastDecisionTime = Time.time;
         }
         
-        // Update patrol target periodically or when reached
         if (Time.time > lastPatrolUpdate + patrolUpdateInterval || HasReachedPatrolTarget())
         {
             currentPatrolTarget = GetNewPatrolTarget();
             lastPatrolUpdate = Time.time;
         }
         
-        // Move towards current patrol target
         steering.MoveTo(currentPatrolTarget);
     }
     
@@ -83,13 +77,11 @@ public class LeaderCommandState : IState
         
         if (enemies.Count > 0)
         {
-            // Use roulette wheel to decide attack strategy
             List<WeightedOption<LeaderDecision>> options = new List<WeightedOption<LeaderDecision>>();
             
             float squadHealth = leader.CurrentSquad.GetAverageHealthPercentage();
             float squadSize = leader.CurrentSquad.GetAliveCount();
             
-            // Weights based on squad condition
             float aggressiveWeight = squadHealth > 0.7f ? 40f : 10f;
             float cautiousWeight = squadHealth > 0.4f ? 30f : 20f;
             float retreatWeight = squadHealth < 0.3f ? 50f : 5f;
@@ -113,24 +105,20 @@ public class LeaderCommandState : IState
         }
         else
         {
-            // Validate and clear invalid squad targets
             if (leader.CurrentSquad != null)
             {
-                leader.CurrentSquad.HasValidSquadTarget(); // This will auto-clear if invalid
+                leader.CurrentSquad.HasValidSquadTarget();
             }
             
-            // Check if leader or squad needs healing
             bool needsHealing = false;
             
             if (leader.CurrentSquad != null)
             {
-                // Check squad health
                 float avgHealth = leader.CurrentSquad.GetAverageHealthPercentage();
                 needsHealing = avgHealth < 0.8f;
             }
             else
             {
-                // Solo leader - check only leader's health (lower threshold for solo)
                 needsHealing = leader.healthPercentage < 0.6f;
             }
             
@@ -143,22 +131,18 @@ public class LeaderCommandState : IState
     
     Vector3 GetNewPatrolTarget()
     {
-        // Create patrol points that stay within the pathfinding grid
         float patrolRange = 15f;
         Vector3 basePosition = leader.transform.position;
         
-        // Create a random direction for exploration
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
         Vector3 patrolTarget = basePosition + new Vector3(randomDirection.x * patrolRange, 0, randomDirection.y * patrolRange);
         
-        // Clamp to pathfinding grid bounds if pathfinder is available
         if (AStarPlus.Instance != null)
         {
             patrolTarget = AStarPlus.Instance.ClampToGrid(patrolTarget);
         }
         else
         {
-            // Fallback to reasonable bounds if no pathfinder
             patrolTarget = new Vector3(
                 Mathf.Clamp(patrolTarget.x, -25f, 25f),
                 0f,

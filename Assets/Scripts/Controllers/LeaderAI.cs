@@ -8,7 +8,6 @@ public class LeaderAI : MonoBehaviour
     private SteeringBehaviors steering;
     private StateMachine stateMachine;
     
-    // Leader States
     private LeaderCommandState commandState;
     private LeaderAttackState attackState;
     private LeaderFleeState fleeState;
@@ -27,12 +26,10 @@ public class LeaderAI : MonoBehaviour
     {
         InitializeStates();
         
-        // Create initial squad
         GameObject squadGO = new GameObject($"Squad_{unit.faction}_{unit.name}");
         Squad squad = squadGO.AddComponent<Squad>();
         squad.SetLeader(unit);
         
-        // Start in command state
         stateMachine.ChangeState<LeaderCommandState>();
     }
     

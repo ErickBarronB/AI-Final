@@ -37,12 +37,10 @@ public class SpectatorCamera : MonoBehaviour
         cam = GetComponent<Camera>();
         targetPosition = transform.position;
         
-        // Initialize rotation based on current transform
         Vector3 currentRotation = transform.eulerAngles;
         xRotation = currentRotation.x;
         yRotation = currentRotation.y;
         
-        // Lock cursor initially
         Cursor.lockState = CursorLockMode.None;
     }
     
@@ -58,7 +56,6 @@ public class SpectatorCamera : MonoBehaviour
     
     void HandleInput()
     {
-        // Mouse look (Alt + Left Mouse Button like Scene view)
         if (Input.GetKey(KeyCode.LeftAlt) && Input.GetMouseButton(0))
         {
             if (!isMouseLookActive)
@@ -76,7 +73,6 @@ public class SpectatorCamera : MonoBehaviour
             }
         }
         
-        // Panning (Middle Mouse Button like Scene view)
         if (Input.GetMouseButtonDown(2))
         {
             isPanning = true;
@@ -90,7 +86,6 @@ public class SpectatorCamera : MonoBehaviour
     
     void HandleMovement()
     {
-        // WASD movement
         Vector3 inputDirection = Vector3.zero;
         
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
@@ -106,16 +101,15 @@ public class SpectatorCamera : MonoBehaviour
         if (Input.GetKey(KeyCode.E))
             inputDirection += transform.up;
         
-        // Speed modifier
+        
         float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? fastMoveSpeed : moveSpeed;
         
-        // Apply movement
         if (inputDirection != Vector3.zero)
         {
             targetPosition += inputDirection.normalized * currentSpeed * Time.deltaTime;
         }
         
-        // Smooth movement
+        
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
     }
     
@@ -123,22 +117,22 @@ public class SpectatorCamera : MonoBehaviour
     {
         if (!isMouseLookActive) return;
         
-        // Get mouse input
+        
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
         
-        // Apply invert Y
+        
         if (invertY)
             mouseY = -mouseY;
         
-        // Rotate around Y axis (horizontal)
+        
         yRotation += mouseX;
         
-        // Rotate around X axis (vertical) with clamping
+        
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         
-        // Apply rotation
+        
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
     }
     
@@ -148,7 +142,7 @@ public class SpectatorCamera : MonoBehaviour
         
         Vector3 mouseDelta = Input.mousePosition - lastMousePosition;
         
-        // Convert screen space to world space movement
+        
         Vector3 panDirection = (-transform.right * mouseDelta.x + -transform.up * mouseDelta.y) * panSpeed * Time.deltaTime;
         
         targetPosition += panDirection;
@@ -157,7 +151,7 @@ public class SpectatorCamera : MonoBehaviour
     
     void HandleZoom()
     {
-        // Scroll wheel zoom
+        
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         
         if (Mathf.Abs(scroll) > 0.01f)
@@ -165,7 +159,7 @@ public class SpectatorCamera : MonoBehaviour
             Vector3 zoomDirection = transform.forward * scroll * zoomSpeed;
             targetPosition += zoomDirection;
             
-            // Clamp zoom distance (optional - based on distance to origin)
+            
             float distanceFromOrigin = Vector3.Distance(targetPosition, Vector3.zero);
             if (distanceFromOrigin < minZoomDistance)
             {
@@ -180,13 +174,13 @@ public class SpectatorCamera : MonoBehaviour
     
     void HandleFocus()
     {
-        // Focus on object (F key like Scene view)
+        
         if (Input.GetKeyDown(KeyCode.F))
         {
             FocusOnSelection();
         }
         
-        // Focus on origin (Home key)
+        
         if (Input.GetKeyDown(KeyCode.Home))
         {
             FocusOnPoint(Vector3.zero);
@@ -195,7 +189,7 @@ public class SpectatorCamera : MonoBehaviour
     
     void FocusOnSelection()
     {
-        // Try to find a selected object or closest unit
+        
         GameObject target = FindClosestUnit();
         
         if (target != null)
@@ -227,11 +221,11 @@ public class SpectatorCamera : MonoBehaviour
     
     void FocusOnPoint(Vector3 point)
     {
-        // Calculate good viewing position
+        
         Vector3 offset = transform.forward * -10f + Vector3.up * 5f;
         targetPosition = point + offset;
         
-        // Look at the point
+                                                        
         Vector3 direction = (point - targetPosition).normalized;
         if (direction != Vector3.zero)
         {
@@ -241,7 +235,6 @@ public class SpectatorCamera : MonoBehaviour
             xRotation = eulerAngles.x;
             yRotation = eulerAngles.y;
             
-            // Handle angle wrapping for X rotation
             if (xRotation > 180f)
                 xRotation -= 360f;
         }
@@ -249,7 +242,6 @@ public class SpectatorCamera : MonoBehaviour
     
     void OnGUI()
     {
-        // Display controls help
         if (Input.GetKey(KeyCode.H))
         {
             GUIStyle style = new GUIStyle();

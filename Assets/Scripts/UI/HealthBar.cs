@@ -20,7 +20,6 @@ public class HealthBar : MonoBehaviour
         unit = GetComponentInParent<Base_Unit>();
         mainCamera = Camera.main;
         
-        // Set up canvas to face camera
         if (canvas != null)
         {
             canvas.worldCamera = mainCamera;
@@ -52,13 +51,11 @@ public class HealthBar : MonoBehaviour
         float healthPercent = unit.healthPercentage;
         healthSlider.value = healthPercent;
         
-        // Update color based on health
         if (fillImage != null)
         {
             fillImage.color = Color.Lerp(lowHealthColor, fullHealthColor, healthPercent);
         }
         
-        // Always show health bar
         canvas.gameObject.SetActive(true);
     }
     
@@ -67,7 +64,7 @@ public class HealthBar : MonoBehaviour
         if (mainCamera != null && canvas != null)
         {
             Vector3 directionToCamera = mainCamera.transform.position - transform.position;
-            directionToCamera.y = 0; // Keep health bar upright
+            directionToCamera.y = 0;
             
             if (directionToCamera != Vector3.zero)
             {

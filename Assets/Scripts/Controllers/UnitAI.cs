@@ -8,7 +8,6 @@ public class UnitAI : MonoBehaviour
     private SteeringBehaviors steering;
     private StateMachine stateMachine;
     
-    // Unit States
     private UnitFollowState followState;
     private UnitAttackState attackState;
     private UnitFleeState fleeState;
@@ -26,7 +25,6 @@ public class UnitAI : MonoBehaviour
     {
         InitializeStates();
         
-        // Start in follow state
         stateMachine.ChangeState<UnitFollowState>();
     }
     

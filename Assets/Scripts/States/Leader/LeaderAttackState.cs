@@ -25,14 +25,12 @@ public class LeaderAttackState : IState
         primaryTarget = leader.FindClosestEnemy();
         hasFortified = false;
         
-        // Set squad target for coordinated attack (only if we have a squad)
         if (leader.CurrentSquad != null && primaryTarget != null)
         {
             leader.CurrentSquad.SetSquadTarget(primaryTarget);
         }
         
-        // Chance to fortify at start of combat
-        if (Random.Range(0f, 1f) < 0.3f) // 30% chance
+        if (Random.Range(0f, 1f) < 0.3f)
         {
             stateMachine.ChangeState<LeaderFortifyState>();
             return;
@@ -43,20 +41,17 @@ public class LeaderAttackState : IState
     
     public void Update()
     {
-        // Check retreat conditions
         if (ShouldRetreat())
         {
             stateMachine.ChangeState<LeaderFleeState>();
             return;
         }
         
-        // Update target
         if (primaryTarget == null || !primaryTarget.isAlive || !leader.CanSeeTarget(primaryTarget))
         {
             primaryTarget = leader.FindClosestEnemy();
             if (primaryTarget == null)
             {
-                // Clear squad target when no enemies found
                 if (leader.CurrentSquad != null)
                 {
                     leader.CurrentSquad.ClearSquadTarget();
@@ -66,7 +61,6 @@ public class LeaderAttackState : IState
             }
             else
             {
-                // Update squad target when leader switches targets (only if we have a squad)
                 if (leader.CurrentSquad != null)
                 {
                     leader.CurrentSquad.SetSquadTarget(primaryTarget);
@@ -74,14 +68,12 @@ public class LeaderAttackState : IState
             }
         }
         
-        // Attack if in range
         if (leader.IsInAttackRange(primaryTarget) && leader.canAttack)
         {
             leader.Attack(primaryTarget);
             return;
         }
         
-        // Move towards target
         MoveTowardsTarget();
     }
     
@@ -90,7 +82,6 @@ public class LeaderAttackState : IState
         pathToTarget = null;
         currentPathIndex = 0;
         
-        // Clear squad target when leader exits combat (only if we have a squad)
         if (leader.CurrentSquad != null)
         {
             leader.CurrentSquad.ClearSquadTarget();
@@ -99,21 +90,15 @@ public class LeaderAttackState : IState
     
     bool ShouldRetreat()
     {
-        // Solo leader retreat conditions
         if (leader.CurrentSquad == null)
         {
-            return leader.healthPercentage < 0.25f; // Solo leaders retreat at 25% health
+            return leader.healthPercentage < 0.25f;
         }
         
-        // Squad leader retreat conditions - be more strategic
         float avgHealth = leader.CurrentSquad.GetAverageHealthPercentage();
         int aliveCount = leader.CurrentSquad.GetAliveCount();
         float leaderHealth = leader.healthPercentage;
         
-        // Only retreat when:
-        // 1. Squad is mostly gone (only leader left)
-        // 2. Squad health is critically low (20% or less)
-        // 3. Leader is very low on health (<15%) and squad is weakened
         return aliveCount == 0 || 
                avgHealth < 0.20f || 
                (leaderHealth < 0.15f && avgHealth < 0.35f);
@@ -135,11 +120,10 @@ public class LeaderAttackState : IState
         
         float distanceToTarget = Vector3.Distance(leader.transform.position, primaryTarget.transform.position);
         
-        // Use direct steering for close targets
         if (distanceToTarget <= 8f)
         {
             Vector3 directionToTarget = (primaryTarget.transform.position - leader.transform.position).normalized;
-            float optimalDistance = 1.5f; // Much closer than attack range (4f)
+            float optimalDistance = 1.5f;
             
             if (distanceToTarget > optimalDistance + 0.5f)
             {
@@ -154,7 +138,6 @@ public class LeaderAttackState : IState
         }
         else
         {
-            // Use pathfinding for longer distances
             UpdatePathToTarget();
             
             if (pathToTarget != null && pathToTarget.Count > 0)

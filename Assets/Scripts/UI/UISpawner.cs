@@ -11,13 +11,11 @@ public class UISpawner : MonoBehaviour
     
     void Start()
     {
-        // Delay UI creation to ensure all components are initialized
         StartCoroutine(DelayedUICreation());
     }
     
     System.Collections.IEnumerator DelayedUICreation()
     {
-        // Wait a few frames to ensure all components and squad members are set up
         yield return null;
         yield return null;
         yield return null;
@@ -33,11 +31,9 @@ public class UISpawner : MonoBehaviour
     {
         if (unit == null) return;
         
-        // Always create UI programmatically (no prefabs needed)
         CreateUIFromCode();
     }
     
-    // Alternative method to create UI programmatically if no prefabs are assigned
     void CreateUIFromCode()
     {
         CreateHealthBarFromCode();
@@ -47,7 +43,6 @@ public class UISpawner : MonoBehaviour
     
     void CreateHealthBarFromCode()
     {
-        // Create Canvas
         GameObject healthBarGO = new GameObject("HealthBar");
         healthBarGO.transform.SetParent(transform);
         healthBarGO.transform.localPosition = healthBarOffset;
@@ -59,7 +54,6 @@ public class UISpawner : MonoBehaviour
         CanvasScaler scaler = healthBarGO.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPhysicalSize;
         
-        // Create Background
         GameObject bgGO = new GameObject("Background");
         bgGO.transform.SetParent(healthBarGO.transform);
         
@@ -70,7 +64,6 @@ public class UISpawner : MonoBehaviour
         bgRect.sizeDelta = new Vector2(1f, 0.2f);
         bgRect.anchoredPosition = Vector2.zero;
         
-        // Create Slider
         GameObject sliderGO = new GameObject("HealthSlider");
         sliderGO.transform.SetParent(healthBarGO.transform);
         
@@ -81,7 +74,6 @@ public class UISpawner : MonoBehaviour
         sliderRect.sizeDelta = new Vector2(0.9f, 0.15f);
         sliderRect.anchoredPosition = Vector2.zero;
         
-        // Create Fill Area
         GameObject fillAreaGO = new GameObject("Fill Area");
         fillAreaGO.transform.SetParent(sliderGO.transform);
         
@@ -91,7 +83,6 @@ public class UISpawner : MonoBehaviour
         fillAreaRect.sizeDelta = Vector2.zero;
         fillAreaRect.anchoredPosition = Vector2.zero;
         
-        // Create Fill
         GameObject fillGO = new GameObject("Fill");
         fillGO.transform.SetParent(fillAreaGO.transform);
         
@@ -105,12 +96,10 @@ public class UISpawner : MonoBehaviour
         fillRect.sizeDelta = Vector2.zero;
         fillRect.anchoredPosition = Vector2.zero;
         
-        // Setup slider
         slider.fillRect = fillRect;
         slider.maxValue = 1f;
         slider.value = 1f;
         
-        // Add HealthBar component
         HealthBar healthBar = healthBarGO.AddComponent<HealthBar>();
         healthBar.canvas = canvas;
         healthBar.healthSlider = slider;
@@ -120,10 +109,9 @@ public class UISpawner : MonoBehaviour
     
     void CreateStateDisplayFromCode()
     {
-        // Create Canvas positioned under health bar
         GameObject stateDisplayGO = new GameObject("StateDisplay");
         stateDisplayGO.transform.SetParent(transform);
-        stateDisplayGO.transform.localPosition = healthBarOffset + new Vector3(0, -0.4f, 0); // Under health bar
+        stateDisplayGO.transform.localPosition = healthBarOffset + new Vector3(0, -0.4f, 0);
         
         Canvas canvas = stateDisplayGO.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
@@ -132,7 +120,6 @@ public class UISpawner : MonoBehaviour
         CanvasScaler scaler = stateDisplayGO.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPhysicalSize;
         
-        // Create Text
         GameObject textGO = new GameObject("StateText");
         textGO.transform.SetParent(stateDisplayGO.transform);
         
@@ -147,7 +134,6 @@ public class UISpawner : MonoBehaviour
         textRect.sizeDelta = new Vector2(1.5f, 0.3f);
         textRect.anchoredPosition = Vector2.zero;
         
-        // Add StateDisplay component
         StateDisplay stateDisplay = stateDisplayGO.AddComponent<StateDisplay>();
         stateDisplay.canvas = canvas;
         stateDisplay.stateText = text;

@@ -21,7 +21,6 @@ public class UnitRoamState : IState
     
     public void Enter()
     {
-        // Set unit as independent when entering roam state
         if (unit.CurrentSquad != null)
         {
             unit.CurrentSquad.RemoveMember(unit);
@@ -34,24 +33,20 @@ public class UnitRoamState : IState
     
     public void Update()
     {
-        // Check if we should flee
         if (unit.healthPercentage <= 0.2f)
         {
             stateMachine.ChangeState<UnitFleeState>();
             return;
         }
         
-        // Check for enemies to attack (independent units can attack directly)
         if (unit.GetVisibleEnemies().Count > 0)
         {
             stateMachine.ChangeState<UnitAttackState>();
             return;
         }
         
-        // Safety check: if no enemies exist at all, just wander around
         if (!AreThereAnyEnemies())
         {
-            // No enemies left - just wander around peacefully
             if (Time.time > lastRoamUpdate + roamUpdateInterval || HasReachedRoamTarget())
             {
                 GetNewRoamTarget();
@@ -61,10 +56,8 @@ public class UnitRoamState : IState
             return;
         }
         
-        // Check for squads to join (independent units look for leaders to recruit them)
         if (Time.time > lastRecruitCheck + recruitCheckInterval)
         {
-            // Look for leaders of the same faction who can recruit us
             Base_Unit[] allUnits = Object.FindObjectsOfType<Base_Unit>();
             foreach (Base_Unit potentialLeader in allUnits)
             {
@@ -82,14 +75,12 @@ public class UnitRoamState : IState
             lastRecruitCheck = Time.time;
         }
         
-        // Update roam target periodically
         if (Time.time > lastRoamUpdate + roamUpdateInterval || HasReachedRoamTarget())
         {
             GetNewRoamTarget();
             lastRoamUpdate = Time.time;
         }
         
-        // Move towards roam target
         steering.MoveTo(roamTarget);
     }
     
@@ -99,21 +90,18 @@ public class UnitRoamState : IState
     
     void GetNewRoamTarget()
     {
-        // Create random roam points within pathfinding grid
         float roamRange = 20f;
         Vector3 basePosition = unit.transform.position;
         
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
         roamTarget = basePosition + new Vector3(randomDirection.x * roamRange, 0, randomDirection.y * roamRange);
         
-        // Clamp to pathfinding grid bounds if pathfinder is available
         if (AStarPlus.Instance != null)
         {
             roamTarget = AStarPlus.Instance.ClampToGrid(roamTarget);
         }
         else
         {
-            // Fallback to reasonable bounds if no pathfinder
             roamTarget = new Vector3(
                 Mathf.Clamp(roamTarget.x, -25f, 25f),
                 0f,
@@ -129,15 +117,14 @@ public class UnitRoamState : IState
     
     bool AreThereAnyEnemies()
     {
-        // Check if there are any enemy units alive at all
         Base_Unit[] allUnits = Object.FindObjectsOfType<Base_Unit>();
         foreach (Base_Unit otherUnit in allUnits)
         {
             if (otherUnit.faction != unit.faction && otherUnit.isAlive)
             {
-                return true; // Found at least one enemy
+                return true;
             }
         }
-        return false; // No enemies found
+        return false;
     }
 }

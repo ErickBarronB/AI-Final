@@ -11,8 +11,8 @@ public class SteeringBehaviors : MonoBehaviour
     [Header("Obstacle Avoidance")]
     [SerializeField] private float avoidanceRadius = 2f;
     [SerializeField] private LayerMask obstacleLayerMask = 1;
-    [SerializeField] private float combatAvoidanceRadius = 3f; // Radio más grande durante combate
-    [SerializeField] private float combatAvoidanceWeight = 3f; // Peso más alto durante combate
+    [SerializeField] private float combatAvoidanceRadius = 3f;
+    [SerializeField] private float combatAvoidanceWeight = 3f;
     
     [Header("Flocking")]
     [SerializeField] private float flockRadius = 5f;
@@ -31,7 +31,7 @@ public class SteeringBehaviors : MonoBehaviour
     public Vector3 GetVelocity() => velocity;
     
     [Header("Pathfinding")]
-    [SerializeField] private float pathfindingDistance = 10f; // Use pathfinding for distances greater than this
+    [SerializeField] private float pathfindingDistance = 10f;
     private List<Vector3> currentPath;
     private int currentPathIndex;
     private float lastPathUpdate;
@@ -44,7 +44,6 @@ public class SteeringBehaviors : MonoBehaviour
         
         Vector3 steering = Vector3.zero;
         
-        // Use pathfinding for longer distances, direct steering for short distances
         if (distanceToTarget > pathfindingDistance && AStarPlus.Instance != null)
         {
             Vector3 nextWaypoint = GetNextPathWaypoint(targetPosition);
@@ -52,11 +51,9 @@ public class SteeringBehaviors : MonoBehaviour
         }
         else
         {
-            // Direct movement for close targets
             steering += Seek(targetPosition) * 1f;
         }
         
-        // Aplicar obstacle avoidance con peso dinámico basado en el contexto
         float avoidanceWeight = IsInCloseCombat() ? combatAvoidanceWeight : 2f;
         steering += ObstacleAvoidance() * avoidanceWeight;
         steering += SquadFlocking() * 0.8f;
@@ -71,7 +68,6 @@ public class SteeringBehaviors : MonoBehaviour
         Vector3 steering = Vector3.zero;
         steering += Seek(dangerPosition) * -1.5f;
         
-        // Usar obstacle avoidance más agresivo durante la huida
         float avoidanceWeight = IsInCloseCombat() ? combatAvoidanceWeight * 1.5f : 2f;
         steering += ObstacleAvoidance() * avoidanceWeight;
         steering += SquadFlocking() * 0.5f;
@@ -119,21 +115,19 @@ public class SteeringBehaviors : MonoBehaviour
     {
         Vector3 avoidance = Vector3.zero;
         
-        // Usar radio dinámico basado en el contexto
         float currentRadius = IsInCloseCombat() ? combatAvoidanceRadius : avoidanceRadius;
         
         Vector3[] rayDirections = {
             transform.forward,
             transform.forward + transform.right * 0.5f,
             transform.forward - transform.right * 0.5f,
-            // Agregar más rayos durante combate cercano
             IsInCloseCombat() ? transform.forward + transform.right * 0.8f : Vector3.zero,
             IsInCloseCombat() ? transform.forward - transform.right * 0.8f : Vector3.zero
         };
         
         foreach (Vector3 direction in rayDirections)
         {
-            if (direction == Vector3.zero) continue; // Skip empty directions
+            if (direction == Vector3.zero) continue;
             
             RaycastHit hit;
             if (Physics.Raycast(transform.position, direction, out hit, currentRadius, obstacleLayerMask))
@@ -273,11 +267,10 @@ public class SteeringBehaviors : MonoBehaviour
     
     Vector3 GetNextPathWaypoint(Vector3 targetPosition)
     {
-        // Check if we need to recalculate path
         bool needNewPath = currentPath == null || 
                           currentPath.Count == 0 || 
                           Vector3.Distance(lastPathTarget, targetPosition) > 2f ||
-                          Time.time > lastPathUpdate + 1f; // Recalculate every second
+                          Time.time > lastPathUpdate + 1f;
         
         if (needNewPath)
         {
@@ -287,10 +280,8 @@ public class SteeringBehaviors : MonoBehaviour
             lastPathTarget = targetPosition;
         }
         
-        // Get next waypoint from path
         if (currentPath != null && currentPath.Count > 0)
         {
-            // Check if we've reached current waypoint
             if (currentPathIndex < currentPath.Count)
             {
                 Vector3 currentWaypoint = currentPath[currentPathIndex];
@@ -306,21 +297,17 @@ public class SteeringBehaviors : MonoBehaviour
             }
         }
         
-        // Fallback to direct movement if pathfinding fails
         return targetPosition;
     }
     
-    // Método para detectar si la unidad está en combate cercano
     bool IsInCloseCombat()
     {
         if (unit == null) return false;
         
-        // Verificar si hay enemigos visibles cerca
         var visibleEnemies = unit.GetVisibleEnemies();
         if (visibleEnemies.Count == 0) return false;
         
-        // Verificar si algún enemigo está cerca (distancia de combate)
-        float combatDistance = 8f; // Distancia considerada como combate cercano
+        float combatDistance = 8f;
         foreach (Base_Unit enemy in visibleEnemies)
         {
             if (enemy != null && enemy.isAlive)
@@ -336,7 +323,6 @@ public class SteeringBehaviors : MonoBehaviour
         return false;
     }
     
-    // Método para obtener la distancia al enemigo más cercano
     float GetDistanceToNearestEnemy()
     {
         if (unit == null) return float.MaxValue;
@@ -360,7 +346,6 @@ public class SteeringBehaviors : MonoBehaviour
         return nearestDistance;
     }
     
-    // Métodos públicos para configuración
     public void SetCombatAvoidanceRadius(float radius)
     {
         combatAvoidanceRadius = radius;

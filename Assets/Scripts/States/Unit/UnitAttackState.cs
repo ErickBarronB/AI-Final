@@ -21,7 +21,6 @@ public class UnitAttackState : IState
     
     public void Enter()
     {
-        // Prioritize squad target if in a squad, otherwise find closest enemy
         if (unit.CurrentSquad != null && unit.CurrentSquad.HasSquadAttackOrder())
         {
             currentTarget = unit.CurrentSquad.CurrentSquadTarget;
@@ -36,20 +35,17 @@ public class UnitAttackState : IState
     
     public void Update()
     {
-        // Check if we should flee
         if (unit.healthPercentage <= 0.25f)
         {
             stateMachine.ChangeState<UnitFleeState>();
             return;
         }
         
-        // Check if we still have valid targets to attack
         bool hasSquadOrders = unit.CurrentSquad != null && unit.CurrentSquad.HasValidSquadTarget();
         bool hasVisibleEnemies = unit.GetVisibleEnemies().Count > 0;
         
         if (!hasSquadOrders && !hasVisibleEnemies)
         {
-            // Return to appropriate state based on squad role
             if (unit.SquadRole == SquadRole.Independent)
             {
                 stateMachine.ChangeState<UnitRoamState>();
@@ -61,10 +57,8 @@ public class UnitAttackState : IState
             return;
         }
         
-        // Update target if current one is gone
         if (currentTarget == null || !currentTarget.isAlive || !unit.CanSeeTarget(currentTarget))
         {
-            // Prioritize squad target if available
             if (unit.CurrentSquad != null && unit.CurrentSquad.HasSquadAttackOrder())
             {
                 currentTarget = unit.CurrentSquad.CurrentSquadTarget;
@@ -76,7 +70,6 @@ public class UnitAttackState : IState
             
             if (currentTarget == null)
             {
-                // Return to appropriate state based on squad role
                 if (unit.SquadRole == SquadRole.Independent)
                 {
                     stateMachine.ChangeState<UnitRoamState>();
@@ -89,11 +82,9 @@ public class UnitAttackState : IState
             }
         }
         
-        // Attack if in range
         if (unit.IsInAttackRange(currentTarget) && unit.canAttack)
         {
             unit.Attack(currentTarget);
-            // Stop moving when attacking
             Vector3 directionToTarget = (currentTarget.transform.position - unit.transform.position).normalized;
             if (directionToTarget.magnitude > 0.1f)
             {
@@ -103,7 +94,6 @@ public class UnitAttackState : IState
             return;
         }
         
-        // Move towards target if not in attack range
         if (!unit.IsInAttackRange(currentTarget))
         {
             MoveTowardsTarget();
@@ -133,11 +123,10 @@ public class UnitAttackState : IState
         
         float distanceToTarget = Vector3.Distance(unit.transform.position, currentTarget.transform.position);
         
-        // Use direct steering for close targets
         if (distanceToTarget <= 8f)
         {
             Vector3 directionToTarget = (currentTarget.transform.position - unit.transform.position).normalized;
-            float optimalDistance = 1.5f; // Much closer than attack range (4f)
+            float optimalDistance = 1.5f;
             
             if (distanceToTarget > optimalDistance + 0.5f)
             {
@@ -152,7 +141,6 @@ public class UnitAttackState : IState
         }
         else
         {
-            // Use pathfinding for longer distances
             UpdatePathToTarget();
             
             if (pathToTarget != null && pathToTarget.Count > 0)

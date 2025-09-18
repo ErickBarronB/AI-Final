@@ -22,7 +22,6 @@ public class LeaderRecruitState : IState
     
     public void Update()
     {
-        // Check if recruitment is no longer possible
         if (recruitTarget == null || !recruitTarget.isAlive || 
             leader.CurrentSquad == null || leader.CurrentSquad.IsFull ||
             recruitTarget.SquadRole != SquadRole.Independent)
@@ -31,15 +30,12 @@ public class LeaderRecruitState : IState
             return;
         }
         
-        // Move towards recruit target
         float distance = Vector3.Distance(leader.transform.position, recruitTarget.transform.position);
         
         if (distance <= leader.CurrentSquad.recruitmentRange)
         {
-            // Attempt recruitment
             if (leader.CurrentSquad.TryAddMember(recruitTarget))
             {
-                // Recruitment successful
                 stateMachine.ChangeState<LeaderCommandState>();
                 return;
             }
